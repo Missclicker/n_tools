@@ -3,10 +3,10 @@ import click
 import re
 
 
-def get_tunnels(ssh: netmiko.BaseConnection) -> str:
+def get_tunnels(ssh: netmiko.BaseConnection) -> list:
     """show tunnels and parse for names"""
-    # TODO show and parse, return list
-    return ''
+    data = ssh.send_command('show router mpls lsp activepath | match "LSP Name "')
+    return re.findall('LSP Name +: *(.*)', data)
 
 
 @click.command()
@@ -24,8 +24,12 @@ def main(username, device_ip):
     tunnels = get_tunnels(ssh)
     print(f'Found {len(tunnels)} tunnels, re-signaling...')
     # TODO list comprehension for commands set
-    commands = [f'{i}' for i in tunnels]
+    commands = [f'tools perform router mpls resignal lsp "{i}" path "loose"' for i in tunnels]
     for command in commands:
-        ssh.send_command(command)
+        print(ssh.send_command(command, strip_prompt=False, strip_command=False))
     print(f'Done!')
     ssh.disconnect()
+
+
+if __name__ == '__main__':
+    main()
