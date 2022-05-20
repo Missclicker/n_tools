@@ -12,6 +12,9 @@ class TestSSH:
     def ConnectHandler(*args, **kwargs):
         return TestSSH(*args, **kwargs)
 
+    def BaseConnection(self, *args, **kwargs):
+        pass
+
     def disconnect(self):
         print(f'disconnected from {self.params["host"]}')
 

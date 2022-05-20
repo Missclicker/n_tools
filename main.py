@@ -10,18 +10,6 @@ import re
 #     return func
 
 
-class WrongIPValue(Exception):
-    pass
-
-
-def get_tunnels(ssh: netmiko.BaseConnection, debug: bool) -> list:
-    """show tunnels and parse for names"""
-    data = ssh.send_command('show router mpls lsp')
-    if debug:
-        print(data)
-    return re.findall(r'(.*?) +\d+\.', data)
-
-
 # @swap_netmiko_for_test
 def resignal_tunnels(device_ip, username, debug, passwd) -> tuple:
     dev_config = {
@@ -43,6 +31,18 @@ def resignal_tunnels(device_ip, username, debug, passwd) -> tuple:
     print(f'Done!')
     ssh.disconnect()
     return device_ip, len(commands)
+
+
+class WrongIPValue(Exception):
+    pass
+
+
+def get_tunnels(ssh: netmiko.BaseConnection, debug: bool) -> list:
+    """show tunnels and parse for names"""
+    data = ssh.send_command('show router mpls lsp')
+    if debug:
+        print(data)
+    return re.findall(r'(.*?) +\d+\.', data)
 
 
 @click.command()
