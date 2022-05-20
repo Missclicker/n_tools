@@ -1,16 +1,9 @@
 import netmiko
 import click
 import re
-# from test_ssh_class import TestSSH
-#
-#
-# def swap_netmiko_for_test(func):
-#     global netmiko
-#     netmiko = TestSSH
-#     return func
+# from test_ssh_class import TestSSH as netmiko
 
 
-# @swap_netmiko_for_test
 def resignal_tunnels(device_ip, username, debug, passwd) -> tuple:
     dev_config = {
         'device_type': 'alcatel_sros',
