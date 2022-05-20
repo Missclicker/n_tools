@@ -4,6 +4,10 @@ import re
 # from test_ssh_class import TestSSH as netmiko
 
 
+class WrongIPValue(Exception):
+    pass
+
+
 def resignal_tunnels(device_ip, username, debug, passwd) -> tuple:
     dev_config = {
         'device_type': 'alcatel_sros',
@@ -13,8 +17,8 @@ def resignal_tunnels(device_ip, username, debug, passwd) -> tuple:
     }
     ssh = netmiko.ConnectHandler(**dev_config)
     tunnels = get_tunnels(ssh, debug)
-    print(f'Found {len(tunnels)} tunnels on {device_ip}, re-signaling...')
-    commands = [f'tools perform router mpls resignal lsp "{i}" path "loose"' for i in tunnels]
+    commands = [f'tools perform router mpls resignal lsp "{i}" path "loose"' for i in tunnels if i]
+    print(f'Found {len(commands)} tunnels on {device_ip}, re-signaling...')
     if debug:
         print(commands)
     for command in commands:
@@ -26,16 +30,12 @@ def resignal_tunnels(device_ip, username, debug, passwd) -> tuple:
     return device_ip, len(commands)
 
 
-class WrongIPValue(Exception):
-    pass
-
-
 def get_tunnels(ssh: netmiko.BaseConnection, debug: bool) -> list:
     """show tunnels and parse for names"""
     data = ssh.send_command('show router mpls lsp')
     if debug:
         print(data)
-    return re.findall(r'(.*?) +\d+\.', data)
+    return re.findall(r'([a-zA-Z0-9-_]{5,}?) +\d+', data)
 
 
 @click.command()
